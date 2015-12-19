@@ -22,7 +22,7 @@ fn main() {
         if !mark[h as usize] {
             
             if count == 25 {
-                println!("The statement is pangarm.");
+                println!("The statement is a pangram.");
                 return;
             }
             mark[h as usize] = true;
@@ -31,5 +31,5 @@ fn main() {
         }
 
     }
-    println!("The statement is not pangarm.")
+    println!("The statement is not pangram.")
 }
