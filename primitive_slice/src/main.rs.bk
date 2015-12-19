@@ -1,0 +1,8 @@
+fn main() {
+    len();
+}
+
+fn len() {
+   let a=[1,2,3];
+   println!("{}",a.len() );
+}
