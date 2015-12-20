@@ -1,0 +1,23 @@
+
+fn main(){
+//Declare a mutable slice.
+let mut input:[u8;7]=[1, 34, 3, 98, 9, 76, 45];
+// Calculate the possible max number by concat the element in the slice. 
+concat_max(&mut input);
+}
+fn concat_max(arr:&mut [u8]){
+// sort the slice by first character of every element.
+arr.sort_by(|a,b| {
+
+(&(b%10)).cmp(&(a%10))
+});
+let result=arr.iter().fold(0, |acc, &x| {
+let mut a_s=acc.to_string().to_owned();
+let x_s=x.to_string().to_owned();
+a_s.push_str(&x_s);
+
+usize::from_str_radix(&a_s,10).unwrap()
+
+});
+println!("{:?}",result)
+}
