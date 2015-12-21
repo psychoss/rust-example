@@ -31,7 +31,10 @@ fn hook(mut req: Request, mut res: Response) {
                     } else {
                         match p.find(".") {
                             Some(expr) => {
-                               // static_file(p, res);
+                                let mut pa=p;
+                                pa.remove(0);
+                                let s:&str=&pa;
+                                static_file(s, res);
                             }
                             None => {
                                 *res.status_mut() = hyper::NotFound;
@@ -88,10 +91,12 @@ fn run(address: &str) -> Result<(), hyper::error::Error> {
     Ok(())
 }
 
-fn static_file(uri: &'static str, mut res: Response) -> Result<(), io::Error> {
+fn static_file(uri: &str, mut res: Response) -> Result<(), io::Error> {
+
     let mut path = try!(env::current_dir());
     set_mime(&res);
     let file_name = path.as_path().join("static").join(uri);
+    println!("{:?}",file_name );
     let mut file = try!(File::open(file_name));
     let mut datas: Vec<u8> = Vec::new();
     try!(file.read_to_end(&mut datas));
