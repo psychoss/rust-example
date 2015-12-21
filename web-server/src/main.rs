@@ -25,14 +25,14 @@ fn hook(mut req: Request, mut res: Response) {
         AbsolutePath(ref path) => match (&req.method, &path[..]) {
             (&Get, "/") | (&Get, "/echo") => {
 
-static_file("index.html",res);
-                //try_return!(res.send(b"Try POST /echo"));
+                static_file("index.html", res);
+                // try_return!(res.send(b"Try POST /echo"));
                 return;
             }
             (&Post, "/echo") => (), // fall through, fighting mutable borrows
             _ => {
 
-            	println!("{:?}",&path[..] );
+                println!("{:?}", &path[..]);
                 *res.status_mut() = hyper::NotFound;
                 return;
             }
@@ -65,17 +65,15 @@ fn run(address: &str) -> Result<(), hyper::error::Error> {
     Ok(())
 }
 
-fn static_file(uri:&'static str,mut res:Response)->Result<(),io::Error>{
-let mut path=try!( env::current_dir());
-let file_name=path.as_path().join("static").join(uri);
-println!("{:?}",file_name );
-let mut file=try!(File::open(file_name));
-let mut datas:Vec<u8>=Vec::new();
-try!(file.read_to_end(&mut datas));
-println!("{:?}", datas);
-res.send(&datas);
-// path.as_path().join("/staic");
-// path.push(uri);
-//println!("{:?}", file_name);
-Ok(())
+fn static_file(uri: &'static str, mut res: Response) -> Result<(), io::Error> {
+    let mut path = try!(env::current_dir());
+    let file_name = path.as_path().join("static").join(uri);
+    let mut file = try!(File::open(file_name));
+    let mut datas: Vec<u8> = Vec::new();
+    try!(file.read_to_end(&mut datas));
+    res.send(&datas);
+    // path.as_path().join("/staic");
+    // path.push(uri);
+    // println!("{:?}", file_name);
+    Ok(())
 }
