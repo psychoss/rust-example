@@ -6,3 +6,4 @@ authors = ["psychoss <626377748@qq.com>"]
 [dependencies]
 
 hyper="*"
+postgres="*"

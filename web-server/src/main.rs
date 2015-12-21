@@ -1,6 +1,9 @@
 extern crate hyper;
+use std::io::prelude::*;
+use std::io;
+use std::env;
+use std::fs::File;
 
-use std::io::{self, Write};
 
 use hyper::{Get, Post};
 use hyper::server::{Server, Request, Response};
@@ -17,16 +20,19 @@ macro_rules! try_return(
     }}
 );
 
-
 fn hook(mut req: Request, mut res: Response) {
     match req.uri {
         AbsolutePath(ref path) => match (&req.method, &path[..]) {
             (&Get, "/") | (&Get, "/echo") => {
-                try_return!(res.send(b"Try POST /echo"));
+
+static_file("index.html",res);
+                //try_return!(res.send(b"Try POST /echo"));
                 return;
             }
             (&Post, "/echo") => (), // fall through, fighting mutable borrows
             _ => {
+
+            	println!("{:?}",&path[..] );
                 *res.status_mut() = hyper::NotFound;
                 return;
             }
@@ -57,4 +63,19 @@ fn run(address: &str) -> Result<(), hyper::error::Error> {
     let x = try!(Server::http(address));
     x.handle(hook);
     Ok(())
+}
+
+fn static_file(uri:&'static str,mut res:Response)->Result<(),io::Error>{
+let mut path=try!( env::current_dir());
+let file_name=path.as_path().join("static").join(uri);
+println!("{:?}",file_name );
+let mut file=try!(File::open(file_name));
+let mut datas:Vec<u8>=Vec::new();
+try!(file.read_to_end(&mut datas));
+println!("{:?}", datas);
+res.send(&datas);
+// path.as_path().join("/staic");
+// path.push(uri);
+//println!("{:?}", file_name);
+Ok(())
 }
