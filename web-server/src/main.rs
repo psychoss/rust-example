@@ -22,21 +22,44 @@ macro_rules! try_return(
 
 fn hook(mut req: Request, mut res: Response) {
     match req.uri {
-        AbsolutePath(ref path) => match (&req.method, &path[..]) {
-            (&Get, "/") | (&Get, "/echo") => {
-
-                static_file("index.html", res);
-                // try_return!(res.send(b"Try POST /echo"));
-                return;
+        AbsolutePath(ref path) => {
+            match (&req.method,&path[..]){
+                (&Get,_) => {
+                    let p=path.to_owned();
+                    if p == "/" {
+                        static_file("index.html", res);
+                    } else {
+                        match p.find(".") {
+                            Some(expr) => {
+                               // static_file(p, res);
+                            }
+                            None => {
+                                *res.status_mut() = hyper::NotFound;
+                                return;
+                            }
+                        }
+                    }
+                }
+                _ => {
+                    *res.status_mut() = hyper::NotFound;
+                    return;
+                }
             }
-            (&Post, "/echo") => (), // fall through, fighting mutable borrows
-            _ => {
-
-                println!("{:?}", &path[..]);
-                *res.status_mut() = hyper::NotFound;
-                return;
-            }
-        },
+        }// match (&req.method, &path[..]) {
+        //     (&Get, "/") | (&Get, "/echo") => {
+        //
+        //         static_file("index.html", res);
+        //         // try_return!(res.send(b"Try POST /echo"));
+        //         return;
+        //     }
+        //     (&Post, "/echo") => (), // fall through, fighting mutable borrows
+        //     _ => {
+        //
+        //         println!("{:?}", &path[..]);
+        //         *res.status_mut() = hyper::NotFound;
+        //         return;
+        //     }
+        // },
         _ => {
             *res.status_mut() = hyper::NotFound;
             return;
@@ -67,6 +90,7 @@ fn run(address: &str) -> Result<(), hyper::error::Error> {
 
 fn static_file(uri: &'static str, mut res: Response) -> Result<(), io::Error> {
     let mut path = try!(env::current_dir());
+    set_mime(&res);
     let file_name = path.as_path().join("static").join(uri);
     let mut file = try!(File::open(file_name));
     let mut datas: Vec<u8> = Vec::new();
@@ -76,4 +100,8 @@ fn static_file(uri: &'static str, mut res: Response) -> Result<(), io::Error> {
     // path.push(uri);
     // println!("{:?}", file_name);
     Ok(())
+}
+
+fn set_mime(mut res: &Response) {
+
 }
