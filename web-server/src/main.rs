@@ -75,20 +75,24 @@ fn hook(mut req: Request, mut res: Response) {
 fn main() {
     // .unwrap().handle(index);
     match run("127.0.0.1:8080") {
-        Ok(()) => {
-            println!("{:?}", "The server start at 127.0.0.1:8080 ");
-        }
+       Ok(_)=>{
+        println!("{:?}", "OK");
+       }
         Err(error) => {
             let mut eout = io::stderr();
             wout!(eout, "ERROR: {}", error);
 
         }
+
     }
 }
 fn run(address: &str) -> Result<(), hyper::error::Error> {
+
     let x = try!(Server::http(address));
+     println!("The server start at {:?}", address);
     x.handle(hook);
-    Ok(())
+Ok(())
+
 }
 
 fn static_file(uri: &str, mut res: Response) -> Result<(), io::Error> {
